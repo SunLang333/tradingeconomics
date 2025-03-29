@@ -48,6 +48,9 @@ class GDPService:
         df['DateTime'] = pd.to_datetime(df['DateTime'])
         df = df.sort_values('DateTime')
         df['YoY_Growth'] = df['Value'].pct_change() * 100
+        
+        # Replace NaN values with -1
+        df = df.fillna(-1)
 
         X = (df['DateTime'] - df['DateTime'].min()).dt.days.values.reshape(-1, 1)
         y = df['Value'].values
@@ -64,6 +67,9 @@ class GDPService:
         
         # Calculate summary statistics
         summary_stats = df['YoY_Growth'].describe().to_dict()
+        # Replace any NaN values in summary stats
+        summary_stats = {k: -1 if pd.isna(v) else v for k, v in summary_stats.items()}
+        
         summary_stats.update({
             'highest_growth': {
                 'value': float(df.loc[df['YoY_Growth'].idxmax(), 'YoY_Growth']),
@@ -84,7 +90,13 @@ class GDPService:
             "y_smooth": y_smooth_tolist,
         }
         
-        return json.dumps(result, default=str)
+        # Custom JSON encoder to handle any remaining NaN values
+        def custom_json_encoder(obj):
+            if pd.isna(obj):
+                return -1
+            return str(obj)
+        
+        return json.dumps(result, default=custom_json_encoder)
 
     async def compare_gdp_data(self, countries: list[str], init_date: str) -> dict:
         """Compare GDP data across multiple countries"""
