@@ -49,7 +49,7 @@ export default {
               pointRadius: 3
             },
             {
-              label: 'Smoothed GDP Trend',
+              label: 'Polynomial Regression Line',
               data: props.chartData.smoothedDates.map((date, i) => ({
                 x: date,
                 y: props.chartData.smoothedValues[i]
@@ -67,7 +67,7 @@ export default {
           plugins: {
             title: {
               display: true,
-              text: `${props.country.charAt(0).toUpperCase() + props.country.slice(1)} GDP - Actual vs Smoothed Trend`
+              text: `${props.country.charAt(0).toUpperCase() + props.country.slice(1)} GDP - Actual vs Polynomial Regression`,
             }
           },
           scales: {

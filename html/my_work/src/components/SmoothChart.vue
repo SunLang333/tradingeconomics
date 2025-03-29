@@ -14,9 +14,6 @@
       <GDPStats
         :stats-data="gdpData.growthSummary"
       />
-      <GDPExtremes
-        :extremes="gdpData.growthSummary"
-      />
     </template>
   </div>
 </template>
@@ -25,14 +22,14 @@
 import { ref, onMounted, watch } from 'vue'
 import GDPChart from './GDPChart.vue'
 import GDPStats from './GDPStats.vue'
-import GDPExtremes from './GDPExtremes.vue'
+//import GDPExtremes from './GDPExtremes.vue'
 
 export default {
   name: 'SmoothChart',
   components: {
     GDPChart,
     GDPStats,
-    GDPExtremes
+    //GDPExtremes
   },
   props: {
     country: {

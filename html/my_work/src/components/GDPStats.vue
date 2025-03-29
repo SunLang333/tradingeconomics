@@ -3,7 +3,18 @@
     <h3>YoY Growth Rate Summary Statistics</h3>
     <table>
       <tbody>
-        <tr v-for="(value, key) in statsData" :key="key">
+        <tr>
+          <td>Highest YoY Growth</td>
+          <td>{{ formatNumber(statsData.highest_growth?.value) }}% ({{ statsData.highest_growth?.year }})</td>
+        </tr>
+        <tr>
+          <td>Lowest YoY Growth</td>
+          <td>{{ formatNumber(statsData.lowest_growth?.value) }}% ({{ statsData.lowest_growth?.year }})</td>
+        </tr>
+        <tr
+          v-for="(value, key) in filteredStats(statsData)"
+          :key="key"
+        >
           <td>{{ formatLabel(key) }}</td>
           <td>{{ formatNumber(value) }}{{ key !== 'count' ? '%' : '' }}</td>
         </tr>
@@ -41,7 +52,16 @@ export default {
       return labels[key] || key
     }
 
-    return { formatNumber, formatLabel }
+    const filteredStats = (stats) => {
+      const {highest_growth, lowest_growth, ...rest} = stats
+      return rest
+    }
+
+    return {
+      formatNumber,
+      formatLabel,
+      filteredStats
+    }
   }
 }
 </script>
