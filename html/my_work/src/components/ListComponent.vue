@@ -1,5 +1,8 @@
 <template>
-  <v-card class="mx-auto" max-width="300">
+  <v-card
+    class="mx-auto"
+    max-width="300"
+  >
     <v-list>
       <v-list-subheader>Select Country</v-list-subheader>
       <v-list-item
@@ -7,10 +10,10 @@
         :key="item"
         :value="item"
         :title="item.charAt(0).toUpperCase() + item.slice(1)"
-        @click="$emit('update:selected', item)"
         :active="selected === item"
+        @click="$emit('update:selected', item)"
       >
-        <template v-slot:prepend>
+        <template #prepend>
           <v-icon
             :color="selected === item ? 'primary' : undefined"
             icon="mdi-chart-line"
