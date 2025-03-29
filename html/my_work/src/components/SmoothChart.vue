@@ -1,146 +1,60 @@
 <template>
-  <div class="chart-container">
-    <div v-if="loading">Loading...</div>
-    <div v-else-if="error">{{ error }}</div>
-    <canvas v-else ref="chartCanvas"></canvas>
+  <div>
+    <div v-if="loading">
+      Loading...
+    </div>
+    <div v-else-if="error">
+      {{ error }}
+    </div>
+    <template v-else>
+      <GDPChart
+        :chart-data="gdpData"
+        :country="country"
+      />
+      <GDPStats
+        :stats-data="gdpData.growthSummary"
+      />
+      <GDPExtremes
+        :extremes="gdpData.growthSummary"
+      />
+    </template>
   </div>
 </template>
 
 <script>
-import { ref, onMounted, nextTick, onUnmounted } from 'vue'
-import {
-  Chart,
-  CategoryScale,
-  TimeScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  LineController
-} from 'chart.js'
-import 'chartjs-adapter-date-fns'
-import { enUS } from 'date-fns/locale'
-
-// Register required components
-Chart.register(
-  CategoryScale,
-  TimeScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  LineController,
-  Title,
-  Tooltip,
-  Legend
-)
+import { ref, onMounted, watch } from 'vue'
+import GDPChart from './GDPChart.vue'
+import GDPStats from './GDPStats.vue'
+import GDPExtremes from './GDPExtremes.vue'
 
 export default {
   name: 'SmoothChart',
-  setup() {
+  components: {
+    GDPChart,
+    GDPStats,
+    GDPExtremes
+  },
+  props: {
+    country: {
+      type: String,
+      required: true,
+      validator: (value) => {
+        return ['mexico', 'new zealand', 'sweden', 'thailand'].includes(value.toLowerCase())
+      }
+    },
+    initDate: {
+      type: String,
+      default: '2015-01-01'
+    }
+  },
+  setup(props) {
     const loading = ref(true)
     const error = ref(null)
     const gdpData = ref(null)
-    const chartCanvas = ref(null)
-    let chart = null
-
-    const createChart = async () => {
-      if (!gdpData.value) return
-
-      await nextTick()
-
-      if (!chartCanvas.value) {
-        error.value = 'Canvas element not found'
-        return
-      }
-
-      try {
-        const ctx = chartCanvas.value.getContext('2d')
-        if (!ctx) {
-          error.value = 'Failed to get canvas context'
-          return
-        }
-
-        if (chart) chart.destroy()
-
-        chart = new Chart(ctx, {
-          type: 'line',
-          data: {
-            datasets: [
-              {
-                label: 'Actual GDP',
-                data: gdpData.value.dates.map((date, i) => ({
-                  x: date,
-                  y: gdpData.value.values[i]
-                })),
-                borderColor: 'rgb(75, 192, 192)',
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                pointRadius: 3
-              },
-              {
-                label: 'Smoothed GDP Trend',
-                data: gdpData.value.smoothedDates.map((date, i) => ({
-                  x: date,
-                  y: gdpData.value.smoothedValues[i]
-                })),
-                borderColor: 'rgb(255, 99, 132)',
-                backgroundColor: 'rgba(255, 99, 132, 0.1)',
-                borderWidth: 2,
-                pointRadius: 0
-              }
-            ]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              title: {
-                display: true,
-                text: 'Mexico GDP - Actual vs Smoothed Trend'
-              },
-              tooltip: {
-                mode: 'index',
-                intersect: false
-              }
-            },
-            scales: {
-              x: {
-                type: 'time',
-                time: {
-                  unit: 'quarter',
-                  displayFormats: {
-                    quarter: 'QQQ yyyy'
-                  }
-                },
-                adapters: {
-                  date: {
-                    locale: enUS
-                  }
-                },
-                title: {
-                  display: true,
-                  text: 'Date'
-                }
-              },
-              y: {
-                title: {
-                  display: true,
-                  text: 'GDP Value'
-                }
-              }
-            }
-          }
-        })
-      } catch (err) {
-        error.value = `Chart creation failed: ${err.message}`
-        console.error('Chart creation error:', err)
-      }
-    }
 
     const fetchGDPData = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:8000/api/gdp/mexico?init_date=2015-01-01')
+        const response = await fetch(`http://127.0.0.1:8000/api/gdp/${props.country}?init_date=${props.initDate}`)
         if (!response.ok) throw new Error('Network response was not ok')
 
         const rawData = await response.json()
@@ -158,7 +72,6 @@ export default {
         }
 
         loading.value = false
-        await createChart()
       } catch (err) {
         error.value = 'Error fetching GDP data: ' + err.message
         loading.value = false
@@ -166,19 +79,19 @@ export default {
       }
     }
 
-    onMounted(() => {
+    watch(() => props.country, () => {
+      loading.value = true
       fetchGDPData()
     })
 
-    onUnmounted(() => {
-      if (chart) chart.destroy()
+    onMounted(() => {
+      fetchGDPData()
     })
 
     return {
       loading,
       error,
-      gdpData,
-      chartCanvas
+      gdpData
     }
   }
 }
@@ -189,5 +102,50 @@ export default {
   width: 100%;
   height: 400px;
   margin: 20px 0;
+}
+
+.stats-table {
+  margin: 20px auto;
+  max-width: 600px;
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.stats-table h3 {
+  color: #333;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.stats-table table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.stats-table td {
+  padding: 8px;
+  border-bottom: 1px solid #ddd;
+}
+
+.stats-table td:first-child {
+  font-weight: 500;
+  color: #666;
+}
+
+.stats-table td:last-child {
+  text-align: right;
+}
+
+.growth-extremes {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #ddd;
+}
+
+.growth-extremes p {
+  margin: 10px 0;
+  color: #333;
 }
 </style>

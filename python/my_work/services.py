@@ -44,13 +44,13 @@ class GDPService:
         )
         
         # Clean and process data
-        df = data[data['Country'] == 'Mexico'].copy()
+        df = data[data['Country'].isin(['Mexico', 'New Zealand', 'Sweden', 'Thailand'])].copy()
         df['DateTime'] = pd.to_datetime(df['DateTime'])
         df = df.sort_values('DateTime')
-        df['YoY_Growth'] = df['Value'].pct_change() * 100
         
-        # Replace NaN values with -1
-        df = df.fillna(-1)
+        # Calculate YoY growth and handle NaN values
+        df['YoY_Growth'] = df['Value'].pct_change() * 100
+        df['YoY_Growth'] = df['YoY_Growth'].fillna(-1)  # Fill NaN with -1
 
         X = (df['DateTime'] - df['DateTime'].min()).dt.days.values.reshape(-1, 1)
         y = df['Value'].values
@@ -67,19 +67,27 @@ class GDPService:
         
         # Calculate summary statistics
         summary_stats = df['YoY_Growth'].describe().to_dict()
-        # Replace any NaN values in summary stats
-        summary_stats = {k: -1 if pd.isna(v) else v for k, v in summary_stats.items()}
         
-        summary_stats.update({
-            'highest_growth': {
-                'value': float(df.loc[df['YoY_Growth'].idxmax(), 'YoY_Growth']),
-                'year': int(df.loc[df['YoY_Growth'].idxmax(), 'DateTime'].year)
-            },
-            'lowest_growth': {
-                'value': float(df.loc[df['YoY_Growth'].idxmin(), 'YoY_Growth']),
-                'year': int(df.loc[df['YoY_Growth'].idxmin(), 'DateTime'].year)
-            }
-        })
+        # Ensure we have valid values for extremes
+        max_idx = df['YoY_Growth'].idxmax()
+        min_idx = df['YoY_Growth'].idxmin()
+        
+        if pd.notna(max_idx) and pd.notna(min_idx):
+            summary_stats.update({
+                'highest_growth': {
+                    'value': float(df.loc[max_idx, 'YoY_Growth']),
+                    'year': int(df.loc[max_idx, 'DateTime'].year)
+                },
+                'lowest_growth': {
+                    'value': float(df.loc[min_idx, 'YoY_Growth']),
+                    'year': int(df.loc[min_idx, 'DateTime'].year)
+                }
+            })
+        else:
+            summary_stats.update({
+                'highest_growth': {'value': -1, 'year': -1},
+                'lowest_growth': {'value': -1, 'year': -1}
+            })
         
         # Prepare final result
         result = {
