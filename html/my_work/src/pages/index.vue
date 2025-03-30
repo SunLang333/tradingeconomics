@@ -9,6 +9,7 @@
         class="hidden-md-and-up"
         color="grey-darken-1"
         size="32"
+        image="https://avatars.githubusercontent.com/u/75293447?v=4"
       />
       <v-spacer />
       <v-tabs
@@ -73,6 +74,7 @@
                 :min="minDate"
                 :max="maxDate"
                 :date-adapter="dateAdapter"
+                align="center"
                 @update:model-value="handleDateChange"
               />
             </v-sheet>

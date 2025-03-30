@@ -4,7 +4,6 @@ import numpy as np
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
 from scipy import stats
-from models import GDPResponse, GDPData
 import json
 
 class GDPService:
@@ -105,39 +104,3 @@ class GDPService:
             return str(obj)
         
         return json.dumps(result, default=custom_json_encoder)
-
-    async def compare_gdp_data(self, countries: list[str], init_date: str) -> dict:
-        """Compare GDP data across multiple countries"""
-        # Gather data for all countries
-        country_data = {}
-        for country in countries:
-            country_data[country] = await self.get_gdp_data(country, init_date)
-        
-        # Calculate comparative metrics
-        base_country = countries[0]
-        comparative_metrics = {
-            'relative_performance': {},
-            'growth_rate_comparison': {},
-            'volatility_comparison': {}
-        }
-        
-        for country in countries[1:]:
-            base_values = pd.Series([d.value for d in country_data[base_country].data])
-            compare_values = pd.Series([d.value for d in country_data[country].data])
-            
-            # Normalize values to base country's initial value
-            relative_perf = (compare_values / compare_values.iloc[0]) / (base_values / base_values.iloc[0])
-            
-            comparative_metrics['relative_performance'][country] = relative_perf.tolist()
-            comparative_metrics['growth_rate_comparison'][country] = (
-                country_data[country].growth_rate - country_data[base_country].growth_rate
-            )
-            comparative_metrics['volatility_comparison'][country] = (
-                country_data[country].volatility / country_data[base_country].volatility
-            )
-        
-        return {
-            'countries_data': country_data,
-            'comparative_metrics': comparative_metrics,
-            'base_country': base_country
-        }
