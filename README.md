@@ -1,45 +1,35 @@
+# Trading Economics API Implementation
 
-### Introduction
+## Overview
+This project implements a comprehensive data visualization system utilizing the Trading Economics API. The live deployment can be accessed at [te.dtianhao.win](https://te.dtianhao.win).
 
-The Trading Economics API provides you with direct access to 300.000 economic indicators, exchange rates, stock market indexes, government bond yields and commodity prices. Providing several request methods to query our databases, with samples available in different programming languages, it is the best way to export data in XML, CSV or JSON format. The API can be used to feed a custom developed application, a public website or just off-the-shelf software like Microsoft Excel.
+## Architecture
 
-#
+### Backend (Python)
+- FastAPI server delivering GDP data analysis
+- Docker containerization for consistent deployment
+- Polynomial regression analysis for trend prediction
+- Statistical computations including YoY growth rates
 
-**Documentation**
+### Frontend (Vue.js 3)
+- Vuetify 3 for Material Design components
+- Interactive GDP visualization using Chart.js
+- Real-time data updates and smooth transitions
+- Responsive layout for various screen sizes
 
-https://docs.tradingeconomics.com/
+## Features
+- GDP trend analysis for Mexico, New Zealand, Sweden, and Thailand
+- Interactive date range selection
+- Statistical insights including:
+    - Year-over-Year growth rates
+    - Trend analysis with polynomial regression
+    - Key statistical indicators
 
-#
+## Technical Stack
+- **Backend**: Python, FastAPI, scikit-learn, pandas
+- **Frontend**: Vue 3, Vuetify, Chart.js
+- **Deployment**: Docker, Nginx
+- **API**: Trading Economics API
 
-**GitHub Examples**
-
-https://github.com/tradingeconomics/tradingeconomics
-
-#
-
-**Python**
-
-[https://github.com/tradingeconomics/tradingeconomics-python](https://github.com/tradingeconomics/tradingeconomics-python)
-
-#
-
-**Jupyter Notebooks**
-
-https://github.com/tradingeconomics/notebooks
-
-#
-
-**Docker**
-
-https://hub.docker.com/u/tradingeconomics
-
-#
-
-**Learn More**
-
-https://tradingeconomics.com/api/
-
-
-
-
-
+## Live Demo
+Visit [te.dtianhao.win](https://te.dtianhao.win) to explore the implementation.
