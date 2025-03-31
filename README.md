@@ -3,6 +3,11 @@
 ## Overview
 This project implements a comprehensive data visualization system utilizing the Trading Economics API. The live deployment can be accessed at [te.dtianhao.win](https://te.dtianhao.win).
 
+![te-1](https://github.com/user-attachments/assets/95752c4b-5ac7-4ab3-bb40-f596dbb646d1)
+
+![te-2](https://github.com/user-attachments/assets/1bc6e18e-5da6-4b7f-9794-d7ad08be0489)
+
+
 ## Architecture
 
 ### Backend (Python)
