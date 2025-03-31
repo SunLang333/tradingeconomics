@@ -51,7 +51,7 @@ export default {
 
     const fetchGDPData = async () => {
       try {
-        const response = await fetch(`http://127.0.0.1:8000/api/gdp/${props.country}?init_date=${props.initDate}`)
+        const response = await fetch(`http://localhost:8000/gdp/${props.country}?init_date=${props.initDate}`)
         if (!response.ok) throw new Error('Network response was not ok')
 
         const rawData = await response.json()

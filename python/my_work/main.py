@@ -6,7 +6,7 @@ app = FastAPI()
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  
+    allow_origins=["http://localhost"],  # Only allow localhost for better safety in production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -14,17 +14,13 @@ app.add_middleware(
 
 gdp_service = GDPService()
 
-@app.get("/api/gdp/{country}")
+@app.get("/gdp/{country}")
 async def get_gdp_data(
     country: str, 
     init_date: str = Query(default='2015-01-01', description="Initial date in YYYY-MM-DD format")
 ):
     return await gdp_service.get_gdp_data(country, init_date)
 
-@app.get("/api/gdp/compare/{countries}")
-async def compare_gdp(
-    countries: str,
-    init_date: str = Query(default='2015-01-01', description="Initial date in YYYY-MM-DD format")
-):
-    country_list = countries.split(",")
-    return await gdp_service.compare_gdp_data(country_list, init_date)
+@app.get("/")
+async def root():
+    return {"message": "It's on!"}
